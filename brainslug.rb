@@ -19,6 +19,14 @@ class BrainSlug
 		@window.show_all()
   end
 
+  def spawnInNewProcessGroup(command)
+    pid = fork() {
+      Process.setsid()
+      exec(command)
+    }
+    return pid
+  end
+
   def launchPS3Service
     @progressbar.fraction = 0
     @progressbar.text = 'Enabling Bluetooth'
@@ -30,7 +38,7 @@ class BrainSlug
       GLib::Timeout.add(3000) {
         @progressbar.fraction += 0.33
         @progressbar.text = 'Running PS3 gamepad service'
-        @ps3Service = spawn('sixad -start')
+        @ps3Service = spawnInNewProcessGroup('sixad -start')
         if(0 <= @ps3Service)
           GLib::Timeout.add(3000) {
             @progressbar.fraction = 1.0
@@ -58,12 +66,12 @@ class BrainSlug
   end
 
   def pairButtonClicked
-
+    puts("Pair button clicked!")
   end
 
 	def quit()
     if(0 <= @ps3Service)
-      Process.kill(signal=-15, pid=@ps3Service)
+      Process.kill('TERM', -Process.getpgid(@ps3Service))
       puts("Waiting for process #{@ps3Service}")
       Process.waitpid(@ps3Service)
     end
