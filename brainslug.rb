@@ -19,14 +19,6 @@ class BrainSlug
 		@window.show_all()
   end # initialize
 
-  def spawnInNewProcessGroup(command)
-    pid = fork() {
-      Process.setsid()
-      exec(command)
-    }
-    return pid
-  end # spawnInNewProcessGroup
-
   def restoreSixad
     @progressbar.text = 'Enabling Bluetooth'
     system('sixad -restore')
@@ -46,7 +38,7 @@ class BrainSlug
       enableHCI0() {
         @progressbar.fraction += 0.33
         @progressbar.text = 'Running PS3 gamepad service'
-        @ps3Service = spawnInNewProcessGroup('sixad -start')
+        @ps3Service = spawn('sixad -start', :pgroup => true)
         if(0 <= @ps3Service)
           GLib::Timeout.add_seconds(3) {
             @progressbar.fraction = 1.0
