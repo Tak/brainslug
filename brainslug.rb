@@ -95,11 +95,10 @@ class BrainSlug
   # Gtk callbacks
 
   def serviceButtonClicked
+    @serviceButton.sensitive = false
     if(LAUNCH_SERVICE_TEXT == @serviceButton.label)
-      @serviceButton.sensitive = false
       launchPS3Service()
     else
-      @serviceButton.sensitive = false
       restoreBluetooth()
     end
   end # serviceButtonClicked
