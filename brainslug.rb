@@ -93,7 +93,10 @@ class BrainSlug
   end # serviceButtonClicked
 
   def pairButtonClicked
-    puts('Pair button clicked!')
+    IO.popen('sixpair') { |io|
+      @progressbar.text = io.read().strip()
+      Process.waitpid(io.pid)
+    }
   end
 
 	def quit()
