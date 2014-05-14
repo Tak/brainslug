@@ -4,7 +4,7 @@ require 'gtk3'
 
 class BrainSlug
   LAUNCH_SERVICE_TEXT = 'Launch PS3 gamepad service'
-  RESET_BLUETOOTH_TEXT = 'Restore normal Bluetooth connectivity'
+  RESET_BLUETOOTH_TEXT = 'Restore Bluetooth connectivity'
 	def initialize()
 		builder = Gtk::Builder.new
 		builder.add_from_file('brainslug.glade')
@@ -17,7 +17,7 @@ class BrainSlug
     @pairButton = builder['pairButton']
 		@window = builder['applicationwindow1']
 		@window.show_all()
-  end
+  end # initialize
 
   def spawnInNewProcessGroup(command)
     pid = fork() {
@@ -25,56 +25,87 @@ class BrainSlug
       exec(command)
     }
     return pid
+  end # spawnInNewProcessGroup
+
+  def restoreSixad
+    @progressbar.text = 'Enabling Bluetooth'
+    system('sixad -restore')
+    GLib::Timeout.add_seconds(3){ yield }
+  end
+
+  def enableHCI0
+    @progressbar.text = 'Bringing up first Bluetooth device'
+    system('hciconfig hci0 up')
+    GLib::Timeout.add_seconds(3) { yield }
   end
 
   def launchPS3Service
     @progressbar.fraction = 0
-    @progressbar.text = 'Enabling Bluetooth'
-    system('sixad -restore')
-    GLib::Timeout.add(3000) {
+    restoreSixad() {
       @progressbar.fraction += 0.33
-      @progressbar.text = 'Bringing up first Bluetooth device'
-      system('hciconfig hci0 up')
-      GLib::Timeout.add(3000) {
+      enableHCI0() {
         @progressbar.fraction += 0.33
         @progressbar.text = 'Running PS3 gamepad service'
         @ps3Service = spawnInNewProcessGroup('sixad -start')
         if(0 <= @ps3Service)
-          GLib::Timeout.add(3000) {
+          GLib::Timeout.add_seconds(3) {
             @progressbar.fraction = 1.0
+            @progressbar.text = 'Press the PS button to connect paired gamepads!'
             @serviceButton.label = RESET_BLUETOOTH_TEXT
             @serviceButton.sensitive = true
-            false
+            false # Don't repeat
           }
         else
           @progressbar.fraction = 0
           @serviceButton.sensitive = true
         end
-        false
+        false # Don't repeat
       }
-      false
+      false # Don't repeat
     }
+  end # launchPS3Service
+
+  def killPS3Service
+    if(0 <= @ps3Service)
+      Process.kill('TERM', -Process.getpgid(@ps3Service))
+      puts("Waiting for process #{@ps3Service}")
+      Process.waitpid(@ps3Service)
+      @ps3Service = -1
+    end
   end
+
+  def restoreBluetooth
+    @progressbar.fraction = 0
+    killPS3Service()
+    restoreSixad() {
+      @progressbar.fraction = 0.5
+      enableHCI0() {
+        @progressbar.fraction = 0
+        @progressbar.text = ''
+        @serviceButton.label = LAUNCH_SERVICE_TEXT
+        @serviceButton.sensitive = true
+        false # Don't repeat
+      }
+      false # Don't repeat
+    }
+  end # restoreBluetooth
 
   def serviceButtonClicked
     if(LAUNCH_SERVICE_TEXT == @serviceButton.label)
       @serviceButton.sensitive = false
       launchPS3Service()
     else
-      @serviceButton.label = LAUNCH_SERVICE_TEXT
+      @serviceButton.sensitive = false
+      restoreBluetooth()
     end
-  end
+  end # serviceButtonClicked
 
   def pairButtonClicked
-    puts("Pair button clicked!")
+    puts('Pair button clicked!')
   end
 
 	def quit()
-    if(0 <= @ps3Service)
-      Process.kill('TERM', -Process.getpgid(@ps3Service))
-      puts("Waiting for process #{@ps3Service}")
-      Process.waitpid(@ps3Service)
-    end
+    killPS3Service()
 		Gtk::main_quit()
 	end # quit
 end
