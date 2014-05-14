@@ -7,7 +7,8 @@ class BrainSlug
   RESET_BLUETOOTH_TEXT = 'Restore Bluetooth'
   def initialize()
     builder = Gtk::Builder.new
-    builder.add_from_file('brainslug.glade')
+    #builder.add_from_file('brainslug.glade')
+    builder.add_from_string(UI_DEFINITION)
     builder.connect_signals {|handler| method(handler) }
     @ps3Service = -1
     @progressbar = builder['progressbar']
@@ -114,6 +115,81 @@ class BrainSlug
     killPS3Service()
     Gtk::main_quit()
   end # quit
+
+  UI_DEFINITION = '<?xml version="1.0" encoding="UTF-8"?>
+      <!-- Generated with glade 3.16.1 -->
+  <interface>
+  <requires lib="gtk+" version="3.10"/>
+  <object class="GtkApplicationWindow" id="applicationwindow1">
+  <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Manage PS3 gamepads</property>
+  <property name="show_menubar">False</property>
+    <signal name="delete-event" handler="quit" swapped="no"/>
+  <child>
+  <object class="GtkBox" id="box1">
+  <property name="visible">True</property>
+        <property name="can_focus">False</property>
+  <property name="orientation">vertical</property>
+        <property name="spacing">5</property>
+  <child>
+  <object class="GtkBox" id="box2">
+  <property name="visible">True</property>
+            <property name="can_focus">False</property>
+  <property name="homogeneous">True</property>
+            <child>
+              <object class="GtkButton" id="serviceButton">
+                <property name="visible">True</property>
+  <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+  <signal name="clicked" handler="serviceButtonClicked" swapped="no"/>
+  </object>
+              <packing>
+                <property name="expand">True</property>
+  <property name="fill">True</property>
+                <property name="position">0</property>
+  </packing>
+            </child>
+  <child>
+  <object class="GtkButton" id="pairButton">
+  <property name="label" translatable="yes">Pair connected PS3 gamepads</property>
+                <property name="visible">True</property>
+  <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+  <signal name="clicked" handler="pairButtonClicked" swapped="no"/>
+  </object>
+              <packing>
+                <property name="expand">True</property>
+  <property name="fill">True</property>
+                <property name="position">1</property>
+  </packing>
+            </child>
+  </object>
+          <packing>
+            <property name="expand">True</property>
+  <property name="fill">True</property>
+            <property name="padding">2</property>
+  <property name="position">0</property>
+          </packing>
+  </child>
+        <child>
+          <object class="GtkProgressBar" id="progressbar">
+            <property name="visible">True</property>
+  <property name="can_focus">False</property>
+            <property name="show_text">True</property>
+  <property name="ellipsize">end</property>
+          </object>
+<packing>
+<property name="expand">False</property>
+            <property name="fill">True</property>
+<property name="padding">2</property>
+            <property name="position">1</property>
+</packing>
+        </child>
+</object>
+    </child>
+</object>
+</interface>
+'
 end
 
 if(__FILE__ == $0)
