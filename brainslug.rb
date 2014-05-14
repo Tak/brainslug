@@ -4,7 +4,7 @@ require 'gtk3'
 
 class BrainSlug
   LAUNCH_SERVICE_TEXT = 'Launch PS3 gamepad service'
-  RESET_BLUETOOTH_TEXT = 'Restore Bluetooth connectivity'
+  RESET_BLUETOOTH_TEXT = 'Restore Bluetooth'
 	def initialize()
 		builder = Gtk::Builder.new
 		builder.add_from_file('brainslug.glade')
@@ -72,10 +72,12 @@ class BrainSlug
     restoreSixad() {
       @progressbar.fraction = 0.5
       enableHCI0() {
-        @progressbar.fraction = 0
+        @progressbar.fraction = 1
         @progressbar.text = ''
         @serviceButton.label = LAUNCH_SERVICE_TEXT
         @serviceButton.sensitive = true
+        # For that flash of 'progress completed' before resetting
+        GLib::Timeout.add (100){ @progressbar.fraction = 0; false }
         false # Don't repeat
       }
       false # Don't repeat
