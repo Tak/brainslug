@@ -5,18 +5,18 @@ require 'gtk3'
 class BrainSlug
   LAUNCH_SERVICE_TEXT = 'Launch PS3 gamepad service'
   RESET_BLUETOOTH_TEXT = 'Restore Bluetooth'
-	def initialize()
-		builder = Gtk::Builder.new
-		builder.add_from_file('brainslug.glade')
-		builder.connect_signals {|handler| method(handler) }
+  def initialize()
+    builder = Gtk::Builder.new
+    builder.add_from_file('brainslug.glade')
+    builder.connect_signals {|handler| method(handler) }
     @ps3Service = -1
     @progressbar = builder['progressbar']
     @progressbar.text = ''
     @serviceButton = builder['serviceButton']
     @serviceButton.label = LAUNCH_SERVICE_TEXT
     @pairButton = builder['pairButton']
-		@window = builder['applicationwindow1']
-		@window.show_all()
+    @window = builder['applicationwindow1']
+    @window.show_all()
     checkPermissions()
   end # initialize
 
@@ -109,13 +109,13 @@ class BrainSlug
     }
   end
 
-	def quit()
+  def quit()
     killPS3Service()
-		Gtk::main_quit()
-	end # quit
+    Gtk::main_quit()
+  end # quit
 end
 
 if(__FILE__ == $0)
-	brainslug = BrainSlug.new()
-	Gtk.main()
+  brainslug = BrainSlug.new()
+  Gtk.main()
 end
