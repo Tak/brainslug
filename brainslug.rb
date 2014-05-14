@@ -17,7 +17,15 @@ class BrainSlug
     @pairButton = builder['pairButton']
 		@window = builder['applicationwindow1']
 		@window.show_all()
+    checkPermissions()
   end # initialize
+
+  def checkPermissions()
+    if(0 != Process.euid)
+      @serviceButton.sensitive = @pairButton.sensitive = false
+      @progressbar.text = 'Root permissions required! Relaunch with [gk]sudo!'
+    end
+  end
 
   def restoreSixad
     @progressbar.text = 'Enabling Bluetooth'
