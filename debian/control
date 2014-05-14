@@ -1,0 +1,14 @@
+Source: brainslug
+Section: utils
+Priority: optional
+Maintainer: Levi Bard <taktaktaktaktaktaktaktaktaktak@gmail.com>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Homepage: 
+Vcs-Bzr: https://bazaar.launchpad.net/~taktaktaktaktaktaktaktaktaktak/+junk/brainslug/
+
+Package: brainslug
+Architecture: all
+Depends: ${misc:Depends}, ruby, ruby-gtk3, ruby-atk, ruby-pango, ruby-gdk3, ruby-gdk-pixbuf2, sixad
+Description: Small GUI for managing PS3 gamepads using sixad
+ 
