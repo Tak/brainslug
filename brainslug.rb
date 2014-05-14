@@ -2,6 +2,7 @@
 
 require 'gtk3'
 
+# Gtk UI for managing PS3 gamepads
 class BrainSlug
   LAUNCH_SERVICE_TEXT = 'Launch PS3 gamepad service'
   RESET_BLUETOOTH_TEXT = 'Restore Bluetooth'
@@ -21,6 +22,8 @@ class BrainSlug
     checkPermissions()
   end # initialize
 
+  # Ensure that we have root permissions
+  # Otherwise, make the UI unreponsive
   def checkPermissions()
     if(0 != Process.euid)
       @serviceButton.sensitive = @pairButton.sensitive = false
@@ -28,19 +31,24 @@ class BrainSlug
     end
   end # checkPermissions
 
-  def restoreSixad
+  # Restores Bluetooth connectivity via sixad
+  # Gives 3 seconds for operation to complete, then yields
+  def restoreSixad()
     @progressbar.text = 'Enabling Bluetooth'
     system('sixad -restore')
     GLib::Timeout.add_seconds(3){ yield }
   end # restoreSixad
 
-  def enableHCI0
+  # Enables the first Bluetooth device
+  # Gives 3 seconds for operation to complete, then yields
+  def enableHCI0()
     @progressbar.text = 'Bringing up first Bluetooth device'
     system('hciconfig hci0 up')
     GLib::Timeout.add_seconds(3) { yield }
   end # enableHCI0
 
-  def launchPS3Service
+  # Launches the PS3 gamepad connection service
+  def launchPS3Service()
     @progressbar.fraction = 0
     restoreSixad() {
       @progressbar.fraction += 0.33
@@ -66,7 +74,8 @@ class BrainSlug
     }
   end # launchPS3Service
 
-  def killPS3Service
+  # Kills the PS3 gamepad connection service, if running
+  def killPS3Service()
     if(0 <= @ps3Service)
       Process.kill('TERM', -Process.getpgid(@ps3Service))
       puts("Waiting for process #{@ps3Service}")
@@ -75,7 +84,8 @@ class BrainSlug
     end
   end # killPS3Service
 
-  def restoreBluetooth
+  # Restores standard Bluetooth connectivity
+  def restoreBluetooth()
     @progressbar.fraction = 0
     killPS3Service()
     restoreSixad() {
@@ -95,7 +105,7 @@ class BrainSlug
 
   # Gtk callbacks
 
-  def serviceButtonClicked
+  def serviceButtonClicked()
     @serviceButton.sensitive = false
     if(LAUNCH_SERVICE_TEXT == @serviceButton.label)
       launchPS3Service()
@@ -104,7 +114,7 @@ class BrainSlug
     end
   end # serviceButtonClicked
 
-  def pairButtonClicked
+  def pairButtonClicked()
     IO.popen('sixpair') { |io|
       @progressbar.text = io.read().strip()
       Process.waitpid(io.pid)
@@ -116,6 +126,8 @@ class BrainSlug
     Gtk::main_quit()
   end # quit
 
+  # Dumped final GtkBuilder definition here,
+  # so that we don't have to chase a .glade file around
   UI_DEFINITION = '<?xml version="1.0" encoding="UTF-8"?>
       <!-- Generated with glade 3.16.1 -->
   <interface>
