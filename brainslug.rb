@@ -25,19 +25,19 @@ class BrainSlug
       @serviceButton.sensitive = @pairButton.sensitive = false
       @progressbar.text = 'Root permissions required! Relaunch with [gk]sudo!'
     end
-  end
+  end # checkPermissions
 
   def restoreSixad
     @progressbar.text = 'Enabling Bluetooth'
     system('sixad -restore')
     GLib::Timeout.add_seconds(3){ yield }
-  end
+  end # restoreSixad
 
   def enableHCI0
     @progressbar.text = 'Bringing up first Bluetooth device'
     system('hciconfig hci0 up')
     GLib::Timeout.add_seconds(3) { yield }
-  end
+  end # enableHCI0
 
   def launchPS3Service
     @progressbar.fraction = 0
@@ -49,7 +49,7 @@ class BrainSlug
         @ps3Service = spawn('sixad -start', :pgroup => true)
         if(0 <= @ps3Service)
           GLib::Timeout.add_seconds(3) {
-            @progressbar.fraction = 1.0
+            @progressbar.fraction = 1
             @progressbar.text = 'Press the PS button to connect paired gamepads!'
             @serviceButton.label = RESET_BLUETOOTH_TEXT
             @serviceButton.sensitive = true
@@ -72,7 +72,7 @@ class BrainSlug
       Process.waitpid(@ps3Service)
       @ps3Service = -1
     end
-  end
+  end # killPS3Service
 
   def restoreBluetooth
     @progressbar.fraction = 0
@@ -92,6 +92,8 @@ class BrainSlug
     }
   end # restoreBluetooth
 
+  # Gtk callbacks
+
   def serviceButtonClicked
     if(LAUNCH_SERVICE_TEXT == @serviceButton.label)
       @serviceButton.sensitive = false
@@ -107,7 +109,7 @@ class BrainSlug
       @progressbar.text = io.read().strip()
       Process.waitpid(io.pid)
     }
-  end
+  end # pairButtonClicked
 
   def quit()
     killPS3Service()
