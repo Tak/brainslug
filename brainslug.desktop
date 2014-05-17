@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Manage PS3 gamepads
 Comment=Manage PS3 gamepads
-Exec=gksudo brainslug.rb
+Exec=gksudo --description 'Manage PS3 gamepads' --message 'Configuring Bluetooth functionality requires administrative privileges.' brainslug.rb
 Terminal=false
 Type=Application
 Categories=Game;
