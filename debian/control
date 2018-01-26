@@ -5,7 +5,7 @@ Maintainer: Levi Bard <taktaktaktaktaktaktaktaktaktak@gmail.com>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
 Homepage: 
-Vcs-Bzr: https://bazaar.launchpad.net/~taktaktaktaktaktaktaktaktaktak/+junk/brainslug/
+Vcs-Git: https://github.com/Tak/brainslug
 
 Package: brainslug
 Architecture: all
