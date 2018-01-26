@@ -244,7 +244,7 @@ class BrainSlug
     </child>
   </object>
 </interface>
-'
+'.freeze
 end
 
 if(__FILE__ == $0)
